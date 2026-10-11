@@ -1,0 +1,1464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PartYard — New &amp; Used Car Parts Marketplace</title>
+<style>
+:root{
+  --bg:#f4f6f9; --card:#ffffff; --ink:#101623; --muted:#6b7280;
+  --line:#e4e8ee; --brand:#1257f0; --brand-d:#0b3fbb;
+  --ok:#0e9f6e; --bad:#e02424;
+  --r:14px; --sh:0 1px 2px rgba(16,22,35,.06), 0 8px 24px rgba(16,22,35,.06);
+}
+*{box-sizing:border-box}
+[hidden]{display:none !important}
+html,body{margin:0;padding:0}
+body{
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,Inter,Arial,sans-serif;
+  background:var(--bg); color:var(--ink); line-height:1.5; -webkit-font-smoothing:antialiased;
+}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:none;background:none}
+.wrap{max-width:1180px;margin:0 auto;padding:0 18px}
+
+.topbar{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.topbar .wrap{display:flex;align-items:center;gap:18px;height:62px}
+.logo{font-weight:800;font-size:20px;letter-spacing:-.4px;cursor:pointer;display:flex;align-items:center;gap:8px}
+.logo .dot{width:26px;height:26px;border-radius:8px;background:linear-gradient(135deg,var(--brand),#4f8bff);display:grid;place-items:center;color:#fff;font-size:14px}
+.logo span{color:var(--brand)}
+.topbar nav{margin-left:auto;display:flex;gap:6px}
+.topbar nav button{padding:9px 14px;border-radius:10px;font-weight:600;color:var(--muted);transition:.15s}
+.topbar nav button:hover{background:#eef2f8;color:var(--ink)}
+.topbar nav button.active{background:var(--brand);color:#fff}
+
+main{padding:26px 0 70px}
+
+.hero{text-align:center;margin-bottom:22px}
+.hero h1{margin:0 0 6px;font-size:clamp(22px,3.4vw,32px);letter-spacing:-.6px}
+.hero p{margin:0;color:var(--muted);font-size:15px}
+
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh);padding:20px}
+.filters{margin-bottom:24px}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px}
+label.field{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:600;color:#3b4453}
+label.field .hint{font-weight:500;color:var(--muted);font-size:11.5px}
+select,input[type=text],input[type=number],input[type=tel],input[type=password],textarea{
+  width:100%;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;
+  background:#fbfcfe;outline:none;transition:.15s;font-size:14px;
+}
+select:focus,input:focus,textarea:focus{border-color:var(--brand);background:#fff;box-shadow:0 0 0 3px rgba(18,87,240,.12)}
+select:disabled{opacity:.55;cursor:not-allowed}
+textarea{resize:vertical;min-height:88px}
+.other-input{margin-top:2px}
+.factions{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap;align-items:center}
+.btn{padding:12px 20px;border-radius:11px;font-weight:700;font-size:14px;transition:.15s;display:inline-flex;align-items:center;gap:8px}
+.btn.primary{background:var(--brand);color:#fff}
+.btn.primary:hover{background:var(--brand-d)}
+.btn.ghost{background:#eef2f8;color:#38404f}
+.btn.ghost:hover{background:#e2e8f2}
+.btn.danger{background:#fdecec;color:var(--bad)}
+.btn.ok{background:#e6f7ef;color:#0a6b48}
+.btn.sm{padding:8px 13px;font-size:13px;border-radius:9px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+
+.reshead{display:flex;align-items:baseline;gap:10px;margin:0 0 14px}
+.reshead h2{margin:0;font-size:18px}
+.reshead .count{color:var(--muted);font-size:13.5px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(258px,1fr));gap:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh);display:flex;flex-direction:column;transition:.16s}
+.card:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(16,22,35,.10)}
+.thumb{aspect-ratio:4/3;background:linear-gradient(135deg,#e9eef7,#dfe7f4);display:grid;place-items:center;font-size:44px;overflow:hidden;position:relative}
+.thumb img{width:100%;height:100%;object-fit:cover}
+.thumb .cond{position:absolute;top:10px;left:10px;font-size:11px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;padding:4px 9px;border-radius:20px;color:#fff}
+.cond.new{background:var(--ok)} .cond.used{background:#64748b}
+.card .body{padding:13px 14px 14px;display:flex;flex-direction:column;gap:7px;flex:1}
+.card h3{margin:0;font-size:15px;line-height:1.35;letter-spacing:-.2px}
+.card .fit{font-size:12.5px;color:var(--muted)}
+.card .seller{font-size:12.5px;color:var(--muted);display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.card .foot{margin-top:auto;display:flex;align-items:center;justify-content:space-between;padding-top:9px}
+.price{font-size:19px;font-weight:800;letter-spacing:-.4px;color:var(--brand)}
+.stars{color:#f59e0b;letter-spacing:1px;font-size:13px}
+.stars .off{color:#d7dce5}
+
+.empty{text-align:center;padding:56px 20px;color:var(--muted)}
+.empty .ico{font-size:44px;margin-bottom:10px}
+
+.formgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+.section-title{font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;color:var(--brand);margin:26px 0 12px}
+.section-title:first-child{margin-top:0}
+.photo-row{display:flex;gap:10px;flex-wrap:wrap}
+.photo-slot{width:104px;height:104px;border-radius:12px;border:2px dashed var(--line);display:grid;place-items:center;font-size:26px;color:#aab3c2;background:#fbfcfe;position:relative;overflow:hidden;cursor:pointer}
+.photo-slot img{width:100%;height:100%;object-fit:cover}
+.photo-slot .rm{position:absolute;top:4px;right:4px;background:rgba(0,0,0,.6);color:#fff;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:13px;line-height:1}
+.seg{display:flex;gap:8px}
+.seg button{flex:1;padding:11px;border-radius:10px;border:1.5px solid var(--line);background:#fbfcfe;font-weight:700;font-size:13.5px;color:var(--muted)}
+.seg button.on{border-color:var(--brand);background:#eaf0ff;color:var(--brand)}
+.notice{padding:13px 15px;border-radius:11px;font-size:13.5px;display:flex;gap:10px;align-items:flex-start}
+.notice.info{background:#eef4ff;color:#1c3f8f}
+.notice.warn{background:#fff6e6;color:#8a5a00}
+.notice.bad{background:#fdecec;color:#96201f}
+.notice.ok{background:#e6f7ef;color:#0a6b48}
+
+.stat-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:16px 0}
+.stat{background:#f8fafd;border:1px solid var(--line);border-radius:12px;padding:14px}
+.stat .k{font-size:11.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);font-weight:700}
+.stat .v{font-size:22px;font-weight:800;margin-top:3px;letter-spacing:-.5px}
+.mini-list{display:flex;flex-direction:column;gap:10px;margin-top:14px}
+.mini{display:flex;gap:12px;align-items:center;background:#fbfcfe;border:1px solid var(--line);border-radius:12px;padding:10px}
+.mini .mthumb{width:52px;height:52px;border-radius:9px;background:#e9eef7;display:grid;place-items:center;font-size:22px;overflow:hidden;flex:0 0 auto}
+.mini .mthumb img{width:100%;height:100%;object-fit:cover}
+.mini .mbody{flex:1;min-width:0}
+.mini .mbody b{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mini .mbody span{font-size:12.5px;color:var(--muted)}
+
+.modal{position:fixed;inset:0;z-index:100;background:rgba(10,15,25,.55);backdrop-filter:blur(3px);display:grid;place-items:center;padding:16px;overflow:auto}
+.modal .sheet{background:#fff;border-radius:18px;max-width:820px;width:100%;box-shadow:0 24px 70px rgba(0,0,0,.3);overflow:hidden;animation:pop .18s ease;position:relative}
+@keyframes pop{from{transform:translateY(10px) scale(.98);opacity:0}to{transform:none;opacity:1}}
+.sheet .close{position:absolute;top:14px;right:14px;background:rgba(255,255,255,.9);width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-size:18px;z-index:2}
+.sheet-head{position:relative}
+.sheet-head .big{aspect-ratio:16/9;background:linear-gradient(135deg,#e9eef7,#dfe7f4);display:grid;place-items:center;font-size:80px;overflow:hidden}
+.sheet-head .big img{width:100%;height:100%;object-fit:cover}
+.sheet-body{padding:22px}
+.sheet-body h2{margin:0 0 4px;font-size:22px;letter-spacing:-.4px}
+.meta{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 16px}
+.tag{font-size:12px;font-weight:700;padding:5px 11px;border-radius:20px;background:#eef2f8;color:#4a5464}
+.tag.brand{background:#eaf0ff;color:var(--brand)}
+.specs{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:16px 0}
+.spec{background:#f8fafd;border-radius:10px;padding:11px 13px}
+.spec .k{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);font-weight:700}
+.spec .v{font-weight:700;font-size:14.5px;margin-top:2px}
+.sellerbox{border:1px solid var(--line);border-radius:13px;padding:15px;margin-top:18px;background:#fbfcfe}
+.sellerbox .top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.phonebox{margin-top:12px;padding:14px;border-radius:11px;background:#eaf7f0;border:1px solid #bfe6d2;text-align:center}
+.phonebox .num{font-size:23px;font-weight:800;letter-spacing:.5px;color:#0a6b48;margin:4px 0}
+
+.starpick{display:flex;gap:6px;justify-content:center;margin:14px 0}
+.starpick button{font-size:36px;color:#d7dce5;transition:.12s;line-height:1}
+.starpick button.on{color:#f59e0b;transform:scale(1.06)}
+
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#101623;color:#fff;padding:13px 22px;border-radius:12px;font-weight:600;font-size:14px;z-index:200;transition:.25s;opacity:0;pointer-events:none;box-shadow:0 10px 30px rgba(0,0,0,.25);max-width:90vw}
+#toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+#toast.ok{background:#0e9f6e} #toast.bad{background:#e02424}
+
+@media(max-width:640px){
+  .topbar nav button{padding:8px 10px;font-size:13px}
+  .logo{font-size:17px}
+  .sheet-body{padding:18px}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap">
+    <div class="logo" onclick="go('browse')">
+      <span class="dot">🔧</span>Part<span>Yard</span>
+    </div>
+    <nav>
+      <button data-nav="browse" class="active">Browse parts</button>
+      <button data-nav="sell">Sell a part</button>
+      <button data-nav="dashboard">Dashboard</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ BROWSE ============ -->
+  <section id="view-browse">
+    <div class="hero">
+      <h1>Find the exact part for your car</h1>
+      <p>Pick your brand, model and year — then the part. No typing needed.</p>
+    </div>
+
+    <div class="panel filters">
+      <div class="fgrid">
+        <label class="field">Car brand
+          <select id="f-brand"></select>
+          <input type="text" id="f-brand-other" class="other-input" placeholder="Type your car brand" hidden>
+        </label>
+
+        <label class="field">Model
+          <select id="f-model"></select>
+          <input type="text" id="f-model-other" class="other-input" placeholder="Type your model" hidden>
+        </label>
+
+        <label class="field">Year
+          <select id="f-year"></select>
+        </label>
+
+        <label class="field">Part category
+          <select id="f-category"></select>
+        </label>
+
+        <label class="field">Part type
+          <select id="f-parttype"></select>
+          <input type="text" id="f-parttype-other" class="other-input" placeholder="Type the part name" hidden>
+        </label>
+
+        <label class="field">Condition
+          <select id="f-condition">
+            <option value="">Any condition</option>
+            <option value="new">New</option>
+            <option value="used">Used</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="fgrid" style="margin-top:14px">
+        <label class="field" style="grid-column:1/-1">
+          <span>Can't find it in the lists? Describe it</span>
+          <input type="text" id="f-keyword" placeholder="e.g. alternator bracket, xenon ballast, driver seat…">
+        </label>
+      </div>
+
+      <div class="factions">
+        <button class="btn primary" id="btn-search">🔍 Search parts</button>
+        <button class="btn ghost" id="btn-reset">Reset</button>
+        <span style="font-size:12.5px;color:var(--muted);margin-left:auto">💵 Cash on pickup · online payment coming soon</span>
+      </div>
+    </div>
+
+    <div class="reshead">
+      <h2 id="res-title">All parts</h2>
+      <span class="count" id="res-count"></span>
+    </div>
+    <div class="grid" id="results"></div>
+  </section>
+
+  <!-- ============ SELL ============ -->
+  <section id="view-sell" hidden>
+    <div class="hero">
+      <h1>List a part for sale</h1>
+      <p>Buyers contact you directly and pay cash on pickup.</p>
+    </div>
+
+    <form class="panel" id="sell-form" autocomplete="off" novalidate>
+
+      <!-- ACCOUNT -->
+      <div class="section-title" style="margin-top:0">1 · Your seller account</div>
+
+      <div id="sell-loggedin" class="notice ok" hidden>
+        <span>✅</span>
+        <div style="flex:1">
+          Logged in as <b id="sell-loggedin-name"></b> · <span id="sell-loggedin-phone"></span>
+        </div>
+        <button type="button" class="btn ghost sm" id="sell-logout">Log out</button>
+      </div>
+
+      <div id="sell-signup">
+        <div class="notice info" style="margin-bottom:14px">
+          <span>🔐</span>
+          <div>
+            Publishing a part creates your seller account. Next time, log in on the
+            <b>Dashboard</b> with your phone &amp; password to manage your listings.
+          </div>
+        </div>
+        <div class="fgrid">
+          <label class="field">Name / shop name
+            <input type="text" id="s-name" placeholder="e.g. Karim Auto Parts">
+          </label>
+          <label class="field">Phone number
+            <input type="tel" id="s-phone" placeholder="e.g. 0611223344">
+            <span class="hint">Buyers will call this number.</span>
+          </label>
+          <label class="field">Password
+            <input type="password" id="s-pass" placeholder="At least 4 characters">
+            <span class="hint">Used only to log in to your dashboard.</span>
+          </label>
+          <label class="field">Confirm password
+            <input type="password" id="s-pass2" placeholder="Repeat password">
+          </label>
+        </div>
+      </div>
+
+      <!-- PHOTOS -->
+      <div class="section-title">2 · Photos</div>
+      <div class="photo-row" id="photo-row"></div>
+      <div style="font-size:12.5px;color:var(--muted);margin-top:8px">Up to 4 photos. The first one is the cover.</div>
+
+      <!-- PART -->
+      <div class="section-title">3 · Part details</div>
+      <div class="fgrid">
+        <label class="field">Condition
+          <div class="seg" id="s-cond">
+            <button type="button" data-v="new">New</button>
+            <button type="button" data-v="used" class="on">Used</button>
+          </div>
+        </label>
+
+        <label class="field">Category
+          <select id="s-category"></select>
+        </label>
+
+        <label class="field">Part type
+          <select id="s-parttype"></select>
+          <input type="text" id="s-parttype-other" class="other-input" placeholder="Type the part name" hidden>
+        </label>
+
+        <label class="field">Price
+          <input type="number" id="s-price" min="0" step="1" placeholder="0">
+        </label>
+      </div>
+
+      <!-- FITMENT -->
+      <div class="section-title">4 · Which cars does it fit?</div>
+      <div class="fgrid">
+        <label class="field">Brand
+          <select id="s-brand"></select>
+          <input type="text" id="s-brand-other" class="other-input" placeholder="Type the brand" hidden>
+        </label>
+
+        <label class="field">Model
+          <select id="s-model"></select>
+          <input type="text" id="s-model-other" class="other-input" placeholder="Type the model" hidden>
+        </label>
+
+        <label class="field">Fits from year
+          <select id="s-yearfrom"></select>
+        </label>
+
+        <label class="field">Fits to year
+          <select id="s-yearto"></select>
+        </label>
+      </div>
+
+      <!-- DESCRIPTION -->
+      <div class="section-title">5 · Description</div>
+      <div class="fgrid">
+        <label class="field" style="grid-column:1/-1">
+          Title
+          <input type="text" id="s-title" placeholder="Auto-filled from your choices — you can edit">
+        </label>
+        <label class="field" style="grid-column:1/-1">
+          Notes (optional)
+          <textarea id="s-desc" placeholder="Condition details, mileage, part number, warranty…"></textarea>
+        </label>
+      </div>
+
+      <div class="notice info" style="margin-top:20px">
+        <span>💵</span>
+        <div><b>Cash on pickup only.</b> You and the buyer meet, inspect the part and pay in person. Online payment is coming soon.</div>
+      </div>
+
+      <div class="factions">
+        <button class="btn primary" type="submit">Publish listing</button>
+      </div>
+    </form>
+  </section>
+
+  <!-- ============ DASHBOARD ============ -->
+  <section id="view-dashboard" hidden>
+
+    <!-- login -->
+    <div id="dash-login-view">
+      <div class="hero">
+        <h1>Seller log in</h1>
+        <p>Enter the phone number and password of your seller account.</p>
+      </div>
+      <div class="panel" style="max-width:520px;margin:0 auto">
+        <div class="fgrid">
+          <label class="field">Phone number
+            <input type="tel" id="login-phone" placeholder="e.g. 0611223344">
+          </label>
+          <label class="field">Password
+            <input type="password" id="login-pass" placeholder="Your password">
+          </label>
+        </div>
+        <div class="factions">
+          <button class="btn primary" id="login-btn" type="button" style="flex:1;justify-content:center">Log in</button>
+        </div>
+        <div style="margin-top:14px;font-size:13px;color:var(--muted);text-align:center">
+          No account yet? <a href="#" onclick="go('sell');return false" style="color:var(--brand);font-weight:700">Publish a part</a> — an account is created automatically.
+        </div>
+        <div class="notice info" style="margin-top:16px">
+          <span>🧪</span>
+          <div>Demo accounts — password <b>1234</b>:<br>
+            <code>0611223344</code> · <code>0655667788</code> · <code>0699887766</code>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- dashboard body -->
+    <div id="dash-main-view" hidden>
+      <div class="hero" style="display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap">
+        <h1 style="margin:0">Seller dashboard</h1>
+        <button class="btn ghost sm" id="dash-logout" type="button">Log out</button>
+      </div>
+      <div id="dash-body"></div>
+    </div>
+
+    <div class="panel" style="margin-top:20px">
+      <div class="section-title" style="margin-top:0">Developer tools</div>
+      <div class="factions">
+        <button class="btn ghost sm" id="d-reseed" type="button">Reset demo data</button>
+        <span style="font-size:12.5px;color:var(--muted)">Wipes local storage and reloads the sample marketplace.</span>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<div id="modal" class="modal" hidden><div class="sheet" id="sheet"></div></div>
+<div id="toast"></div>
+
+<script>
+/* =====================================================================
+   CONFIG
+   ===================================================================== */
+const CURRENCY   = '$';
+const SUSPEND_AVG         = 2.0;
+const SUSPEND_MIN_RATINGS = 3;
+const MAX_PHOTOS = 4;
+
+/* =====================================================================
+   REFERENCE DATA
+   ===================================================================== */
+const VEHICLES = {
+  'Toyota':{'Corolla':{from:1995,to:2024},'Camry':{from:1995,to:2024},'Yaris':{from:1999,to:2024},'Hilux':{from:1997,to:2024},'RAV4':{from:1996,to:2024},'Land Cruiser':{from:1990,to:2024},'Prius':{from:1997,to:2024},'Avensis':{from:1997,to:2018}},
+  'Honda':{'Civic':{from:1995,to:2024},'Accord':{from:1995,to:2024},'CR-V':{from:1997,to:2024},'Jazz':{from:2001,to:2024},'HR-V':{from:1999,to:2024}},
+  'Nissan':{'Qashqai':{from:2007,to:2024},'Micra':{from:1995,to:2024},'Sunny':{from:1995,to:2024},'X-Trail':{from:2001,to:2024},'Juke':{from:2010,to:2024},'Navara':{from:1998,to:2024}},
+  'Hyundai':{'i10':{from:2007,to:2024},'i20':{from:2008,to:2024},'i30':{from:2007,to:2024},'Elantra':{from:1995,to:2024},'Tucson':{from:2004,to:2024},'Santa Fe':{from:2000,to:2024},'Accent':{from:1995,to:2024}},
+  'Kia':{'Picanto':{from:2004,to:2024},'Rio':{from:2000,to:2024},'Ceed':{from:2006,to:2024},'Sportage':{from:1995,to:2024},'Sorento':{from:2002,to:2024},'Cerato':{from:2004,to:2024}},
+  'Ford':{'Focus':{from:1998,to:2024},'Fiesta':{from:1995,to:2024},'Mondeo':{from:1995,to:2022},'Kuga':{from:2008,to:2024},'Ranger':{from:1998,to:2024},'Transit':{from:1995,to:2024}},
+  'Chevrolet':{'Cruze':{from:2008,to:2023},'Aveo':{from:2002,to:2020},'Captiva':{from:2006,to:2018},'Spark':{from:2005,to:2022},'Malibu':{from:1997,to:2024}},
+  'Volkswagen':{'Golf':{from:1995,to:2024},'Polo':{from:1995,to:2024},'Passat':{from:1995,to:2024},'Tiguan':{from:2007,to:2024},'Jetta':{from:1995,to:2024},'Caddy':{from:1996,to:2024}},
+  'BMW':{'3 Series':{from:1995,to:2024},'5 Series':{from:1995,to:2024},'1 Series':{from:2004,to:2024},'X1':{from:2009,to:2024},'X3':{from:2003,to:2024},'X5':{from:1999,to:2024}},
+  'Mercedes-Benz':{'C-Class':{from:1995,to:2024},'E-Class':{from:1995,to:2024},'A-Class':{from:1997,to:2024},'GLC':{from:2015,to:2024},'Sprinter':{from:1995,to:2024},'ML / GLE':{from:1997,to:2024}},
+  'Audi':{'A3':{from:1996,to:2024},'A4':{from:1995,to:2024},'A6':{from:1995,to:2024},'Q3':{from:2011,to:2024},'Q5':{from:2008,to:2024}},
+  'Renault':{'Clio':{from:1995,to:2024},'Megane':{from:1995,to:2024},'Captur':{from:2013,to:2024},'Duster':{from:2010,to:2024},'Kangoo':{from:1997,to:2024},'Symbol':{from:2002,to:2021}},
+  'Peugeot':{'206':{from:1998,to:2012},'207':{from:2006,to:2014},'208':{from:2012,to:2024},'307':{from:2000,to:2008},'308':{from:2007,to:2024},'3008':{from:2009,to:2024},'Partner':{from:1996,to:2024}},
+  'Citroen':{'C3':{from:2002,to:2024},'C4':{from:2004,to:2024},'C5':{from:2001,to:2021},'Berlingo':{from:1996,to:2024},'C-Elysee':{from:2012,to:2024}},
+  'Fiat':{'Punto':{from:1995,to:2018},'500':{from:2007,to:2024},'Panda':{from:1995,to:2024},'Doblo':{from:2000,to:2024},'Tipo':{from:2015,to:2024}},
+  'Mazda':{'3':{from:2003,to:2024},'6':{from:2002,to:2024},'CX-5':{from:2012,to:2024},'2':{from:2002,to:2024},'MX-5':{from:1995,to:2024}},
+  'Mitsubishi':{'Lancer':{from:1995,to:2017},'Outlander':{from:2001,to:2024},'Pajero':{from:1995,to:2021},'ASX':{from:2010,to:2024},'L200':{from:1996,to:2024}},
+  'Suzuki':{'Swift':{from:1995,to:2024},'Vitara':{from:1995,to:2024},'Jimny':{from:1998,to:2024},'SX4':{from:2006,to:2024},'Alto':{from:1995,to:2024}},
+  'Skoda':{'Octavia':{from:1996,to:2024},'Fabia':{from:1999,to:2024},'Superb':{from:2001,to:2024},'Kodiaq':{from:2016,to:2024}},
+  'Seat':{'Ibiza':{from:1995,to:2024},'Leon':{from:1999,to:2024},'Ateca':{from:2016,to:2024}},
+  'Opel':{'Astra':{from:1995,to:2024},'Corsa':{from:1995,to:2024},'Insignia':{from:2008,to:2024},'Mokka':{from:2012,to:2024},'Vectra':{from:1995,to:2008}},
+  'Dacia':{'Sandero':{from:2008,to:2024},'Duster':{from:2010,to:2024},'Logan':{from:2004,to:2024},'Lodgy':{from:2012,to:2022}},
+  'Jeep':{'Grand Cherokee':{from:1995,to:2024},'Wrangler':{from:1995,to:2024},'Compass':{from:2007,to:2024},'Renegade':{from:2014,to:2024}},
+  'Land Rover':{'Discovery':{from:1995,to:2024},'Range Rover':{from:1995,to:2024},'Defender':{from:1995,to:2024},'Freelander':{from:1997,to:2014}},
+  'Volvo':{'XC60':{from:2008,to:2024},'XC90':{from:2002,to:2024},'S60':{from:2000,to:2024},'V40':{from:1996,to:2019}},
+  'Tesla':{'Model 3':{from:2017,to:2024},'Model Y':{from:2020,to:2024},'Model S':{from:2012,to:2024},'Model X':{from:2015,to:2024}},
+  'Chery':{'Tiggo':{from:2005,to:2024},'QQ':{from:2003,to:2020},'Arrizo':{from:2013,to:2024}},
+  'MG':{'ZS':{from:2017,to:2024},'MG3':{from:2011,to:2024},'HS':{from:2018,to:2024},'RX5':{from:2016,to:2024}},
+  'BYD':{'F3':{from:2005,to:2020},'Atto 3':{from:2022,to:2024},'Song':{from:2015,to:2024}},
+};
+
+const CATEGORIES = {
+  'Engine':['Complete Engine','Cylinder Head','Engine Block','Camshaft','Crankshaft','Piston','Turbocharger','Oil Pan','Valve Cover','Timing Belt / Chain','Engine Mount','Gasket Set'],
+  'Gearbox':['Manual Gearbox','Automatic Gearbox','CVT Gearbox','Clutch Kit','Flywheel','Torque Converter','Differential','Drive Shaft','Gear Selector','Gearbox Mount'],
+  'Suspension':['Shock Absorber','Strut','Coil Spring','Control Arm','Ball Joint','Tie Rod End','Sway Bar Link','Bushing','Wheel Hub','Steering Knuckle'],
+  'Brakes':['Brake Disc','Brake Pads','Brake Caliper','Brake Booster','Master Cylinder','ABS Module','Brake Line','Handbrake Lever','Brake Drum'],
+  'Electric':['Alternator','Starter Motor','Battery','Ignition Coil','Spark Plug','Glow Plug','Wiring Harness','Fuse Box','Relay','Electric Motor'],
+  'Electronic':['ECU / Engine Computer','BCM / Body Computer','TCU / Gearbox Computer','Instrument Cluster','Radio / Screen','Reverse Camera','Parking Sensor','Key / Remote','Sensor'],
+  'Steering':['Steering Rack','Power Steering Pump','Steering Column','Steering Wheel','Idler Arm','Pitman Arm'],
+  'Wheels':['Rim / Alloy Wheel','Tire','Hubcap','Wheel Bearing','Lug Nuts','Wheel Cover','TPMS Sensor'],
+  'Cooling':['Radiator','Water Pump','Thermostat','Radiator Fan','Fan Clutch','Coolant Reservoir','Intercooler','Oil Cooler','Hose'],
+  'Heating':['Heater Blower Motor','Heater Core','Heater Control Valve','Heater Resistor','Heater Hose'],
+  'Air Conditioning':['AC Compressor','AC Condenser','AC Evaporator','AC Dryer / Receiver','AC Lines','AC Control Panel','AC Fan'],
+  'Lights':['Headlight','Tail Light','Fog Light','Turn Signal','Interior Light','Xenon Ballast','LED Module','License Plate Light'],
+  'Interior':['Seat','Dashboard','Door Panel','Center Console','Carpet','Headliner','Seat Belt','Mirror','Gear Knob','Steering Wheel Trim'],
+  'Safety':['Airbag','Seat Belt Pretensioner','Crash Sensor','ABS Sensor','Airbag Module','Child Seat Anchor'],
+};
+
+const CATEGORY_ICON = {
+  'Engine':'⚙️','Gearbox':'🔧','Suspension':'🌀','Brakes':'🛑','Electric':'⚡',
+  'Electronic':'💻','Steering':'🎯','Wheels':'🛞','Cooling':'❄️','Heating':'🔥',
+  'Air Conditioning':'🧊','Lights':'💡','Interior':'🪑','Safety':'🛡️'
+};
+
+/* =====================================================================
+   STORAGE + SESSION
+   ===================================================================== */
+const K = { L:'py_listings', S:'py_sellers', R:'py_ratings', SESSION:'py_session' };
+const store = {
+  read(k, d){ try{ const v = JSON.parse(localStorage.getItem(k)); return v ?? d; }catch(e){ return d; } },
+  write(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){ toast('Storage full — remove some photos','bad'); } }
+};
+
+let listings = store.read(K.L, null);
+let sellers  = store.read(K.S, null);
+let ratings  = store.read(K.R, null);
+
+let session = { phone: store.read(K.SESSION, null) };
+if(session.phone && (!sellers || !sellers[session.phone])){
+  session.phone = null;
+  store.write(K.SESSION, null);
+}
+
+/* =====================================================================
+   HELPERS
+   ===================================================================== */
+const $  = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+const uid = () => Math.random().toString(36).slice(2,10) + Date.now().toString(36).slice(-3);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const normPhone = p => String(p||'').replace(/[^\d+]/g,'');
+const fmtPrice = n => CURRENCY + Number(n||0).toLocaleString();
+const yearLabel = l => l.yearFrom === l.yearTo ? String(l.yearFrom) : `${l.yearFrom}–${l.yearTo}`;
+
+function hashPass(p){
+  let h = 5381;
+  for(let i=0;i<p.length;i++) h = ((h<<5) + h) + p.charCodeAt(i);
+  return 'h' + Math.abs(h).toString(36);
+}
+
+function starHTML(avg){
+  const full = Math.round(avg);
+  let h = '';
+  for(let i=1;i<=5;i++) h += i<=full ? '★' : '<span class="off">★</span>';
+  return `<span class="stars">${h}</span>`;
+}
+
+function toast(msg, type=''){
+  const t = $('#toast');
+  t.textContent = msg;
+  t.className = 'show ' + type;
+  clearTimeout(t._t);
+  t._t = setTimeout(()=>{ t.className = type; }, 2800);
+}
+
+window.addEventListener('error', e => {
+  console.error(e.error);
+  if(e.message) toast('Error: ' + e.message, 'bad');
+});
+
+function go(view){
+  ['browse','sell','dashboard'].forEach(v => {
+    document.getElementById('view-'+v).hidden = v !== view;
+  });
+  $$('.topbar nav button').forEach(b => b.classList.toggle('active', b.dataset.nav === view));
+  window.scrollTo({top:0, behavior:'smooth'});
+  if(view === 'browse') renderResults();
+  if(view === 'dashboard') renderDashboard();
+  if(view === 'sell' && window.updateSellAccountUI) window.updateSellAccountUI();
+}
+
+/* =====================================================================
+   SELLER STATS / SUSPENSION
+   ===================================================================== */
+function sellerStats(phone){
+  const p = normPhone(phone);
+  const rs = ratings.filter(r => r.sellerPhone === p);
+  const count = rs.length;
+  const avg = count ? rs.reduce((a,r)=>a + r.stars, 0) / count : 0;
+  const suspended = count >= SUSPEND_MIN_RATINGS && avg <= SUSPEND_AVG;
+  return { count, avg, suspended, ratings: rs };
+}
+function isSuspended(phone){ return sellerStats(phone).suspended; }
+function getSeller(phone){
+  const p = normPhone(phone);
+  return (sellers && sellers[p]) || null;
+}
+
+/* =====================================================================
+   SEED
+   ===================================================================== */
+function seed(){
+  sellers = {
+    '0611223344': { phone:'0611223344', name:'Karim Auto Parts',   passwordHash: hashPass('1234'), createdAt: Date.now() },
+    '0655667788': { phone:'0655667788', name:'Sami Junk Yard',    passwordHash: hashPass('1234'), createdAt: Date.now() },
+    '0699887766': { phone:'0699887766', name:'Nadia Spare Parts', passwordHash: hashPass('1234'), createdAt: Date.now() },
+  };
+  ratings = [
+    {id:uid(), sellerPhone:'0611223344', buyerPhone:'0700000001', stars:5, comment:'Exact part, fair price.', date:Date.now()-86400000*40},
+    {id:uid(), sellerPhone:'0611223344', buyerPhone:'0700000002', stars:5, comment:'Fast reply on the phone.', date:Date.now()-86400000*22},
+    {id:uid(), sellerPhone:'0611223344', buyerPhone:'0700000003', stars:4, comment:'Good condition, slight delay.', date:Date.now()-86400000*9},
+    {id:uid(), sellerPhone:'0655667788', buyerPhone:'0700000004', stars:4, comment:'Part worked fine.', date:Date.now()-86400000*30},
+    {id:uid(), sellerPhone:'0655667788', buyerPhone:'0700000005', stars:5, comment:'Honest guy.', date:Date.now()-86400000*15},
+    {id:uid(), sellerPhone:'0655667788', buyerPhone:'0700000006', stars:4, comment:'', date:Date.now()-86400000*5},
+    {id:uid(), sellerPhone:'0699887766', buyerPhone:'0700000007', stars:2, comment:'Part did not fit as described.', date:Date.now()-86400000*20},
+    {id:uid(), sellerPhone:'0699887766', buyerPhone:'0700000008', stars:1, comment:'Never answered the phone.', date:Date.now()-86400000*11},
+    {id:uid(), sellerPhone:'0699887766', buyerPhone:'0700000009', stars:2, comment:'Wrong year range listed.', date:Date.now()-86400000*3},
+  ];
+  const D = 86400000;
+  listings = [
+    {id:'L1', brand:'Toyota', model:'Corolla', yearFrom:2009, yearTo:2013, category:'Electric', partType:'Alternator', condition:'used', price:120, title:'Alternator — Toyota Corolla 2009–2013', description:'Tested, working. 6-month warranty. Pulled from a 2011 Corolla with 90k km.', sellerPhone:'0611223344', sellerName:'Karim Auto Parts', photos:[], status:'active', createdAt: Date.now()-D*2},
+    {id:'L2', brand:'Toyota', model:'Corolla', yearFrom:2009, yearTo:2013, category:'Brakes', partType:'Brake Pads', condition:'new', price:45, title:'Front Brake Pads — Toyota Corolla 2009–2013', description:'Brand new, sealed box. OEM quality.', sellerPhone:'0611223344', sellerName:'Karim Auto Parts', photos:[], status:'active', createdAt: Date.now()-D*3},
+    {id:'L3', brand:'Honda', model:'Civic', yearFrom:2012, yearTo:2015, category:'Engine', partType:'Complete Engine', condition:'used', price:900, title:'Complete Engine 1.8 — Honda Civic 2012–2015', description:'Running engine, 78k km, compression tested. Delivery possible in the city.', sellerPhone:'0655667788', sellerName:'Sami Junk Yard', photos:[], status:'active', createdAt: Date.now()-D*5},
+    {id:'L4', brand:'Hyundai', model:'i20', yearFrom:2014, yearTo:2019, category:'Lights', partType:'Headlight', condition:'used', price:85, title:'Right Headlight — Hyundai i20 2014–2019', description:'No cracks, all clips intact. Bulbs included.', sellerPhone:'0655667788', sellerName:'Sami Junk Yard', photos:[], status:'active', createdAt: Date.now()-D*6},
+    {id:'L5', brand:'Volkswagen', model:'Golf', yearFrom:2010, yearTo:2015, category:'Gearbox', partType:'Manual Gearbox', condition:'used', price:650, title:'Manual Gearbox 6-speed — VW Golf 2010–2015', description:'Shifts smoothly, no synchro noise. 120k km.', sellerPhone:'0611223344', sellerName:'Karim Auto Parts', photos:[], status:'active', createdAt: Date.now()-D*8},
+    {id:'L6', brand:'BMW', model:'3 Series', yearFrom:2012, yearTo:2018, category:'Suspension', partType:'Shock Absorber', condition:'new', price:150, title:'Front Shock Absorber — BMW 3 Series 2012–2018', description:'New, pair available. Sport suspension spec.', sellerPhone:'0655667788', sellerName:'Sami Junk Yard', photos:[], status:'active', createdAt: Date.now()-D*9},
+    {id:'L7', brand:'Nissan', model:'Qashqai', yearFrom:2014, yearTo:2020, category:'Cooling', partType:'Radiator', condition:'new', price:180, title:'Radiator — Nissan Qashqai 2014–2020', description:'New aftermarket radiator, fits petrol and diesel.', sellerPhone:'0611223344', sellerName:'Karim Auto Parts', photos:[], status:'active', createdAt: Date.now()-D*11},
+    {id:'L8', brand:'Renault', model:'Clio', yearFrom:2013, yearTo:2019, category:'Air Conditioning', partType:'AC Compressor', condition:'used', price:220, title:'AC Compressor — Renault Clio 2013–2019', description:'Tested and gassed, blows cold. 60-day guarantee.', sellerPhone:'0655667788', sellerName:'Sami Junk Yard', photos:[], status:'active', createdAt: Date.now()-D*12},
+    {id:'L9', brand:'Ford', model:'Focus', yearFrom:2011, yearTo:2018, category:'Steering', partType:'Steering Rack', condition:'used', price:300, title:'Steering Rack — Ford Focus 2011–2018', description:'No leaks, no play. Removed from a running car.', sellerPhone:'0611223344', sellerName:'Karim Auto Parts', photos:[], status:'active', createdAt: Date.now()-D*14},
+    {id:'L10', brand:'Kia', model:'Sportage', yearFrom:2016, yearTo:2021, category:'Interior', partType:'Seat', condition:'used', price:250, title:'Driver Seat (leather) — Kia Sportage 2016–2021', description:'Grey leather, electric adjustment, no tears.', sellerPhone:'0699887766', sellerName:'Nadia Spare Parts', photos:[], status:'active', createdAt: Date.now()-D*4},
+  ];
+  store.write(K.S, sellers); store.write(K.R, ratings); store.write(K.L, listings);
+}
+if(!listings || !sellers || !ratings) seed();
+
+/* =====================================================================
+   IMAGE HANDLING
+   ===================================================================== */
+function readImage(file){
+  return new Promise((resolve, reject) => {
+    const fr = new FileReader();
+    fr.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        const maxW = 900;
+        const scale = Math.min(1, maxW / img.width);
+        const c = document.createElement('canvas');
+        c.width  = Math.round(img.width  * scale);
+        c.height = Math.round(img.height * scale);
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        resolve(c.toDataURL('image/jpeg', 0.72));
+      };
+      img.onerror = reject;
+      img.src = fr.result;
+    };
+    fr.onerror = reject;
+    fr.readAsDataURL(file);
+  });
+}
+
+/* =====================================================================
+   BROWSE
+   ===================================================================== */
+let browseFilters = {};
+
+function initBrowse(){
+  const brandSel = $('#f-brand'), modelSel = $('#f-model'), yearSel = $('#f-year');
+  const brandOther = $('#f-brand-other'), modelOther = $('#f-model-other');
+
+  // brands
+  function fillBrands(){
+    let h = '<option value="">Any brand</option>';
+    Object.keys(VEHICLES).sort().forEach(b => h += `<option value="${esc(b)}">${esc(b)}</option>`);
+    h += '<option value="__other__">Other (type it)…</option>';
+    brandSel.innerHTML = h;
+  }
+  function fillModels(){
+    const b = brandSel.value;
+    brandOther.hidden = b !== '__other__';
+    if(!b){
+      modelSel.disabled = true;
+      modelSel.innerHTML = '<option value="">— pick a brand first —</option>';
+      if(modelOther) modelOther.hidden = true;
+      fillYears();
+      return;
+    }
+    modelSel.disabled = false;
+    let h = '<option value="">Any model</option>';
+    if(b === '__other__'){
+      h = '<option value="__other__">Other (type it)…</option>';
+    } else {
+      Object.keys(VEHICLES[b]||{}).sort().forEach(m => h += `<option value="${esc(m)}">${esc(m)}</option>`);
+      h += '<option value="__other__">Other (type it)…</option>';
+    }
+    modelSel.innerHTML = h;
+    fillYears();
+  }
+  function fillYears(){
+    const b = brandSel.value, m = modelSel.value;
+    modelOther.hidden = m !== '__other__';
+    let range = null;
+    if(b && m && b !== '__other__' && m !== '__other__' && VEHICLES[b] && VEHICLES[b][m]) range = VEHICLES[b][m];
+    let h = '<option value="">Any year</option>';
+    if(range){ for(let y=range.to; y>=range.from; y--) h += `<option value="${y}">${y}</option>`; }
+    else { for(let y=2025; y>=1985; y--) h += `<option value="${y}">${y}</option>`; }
+    yearSel.disabled = false;
+    yearSel.innerHTML = h;
+  }
+  brandSel.addEventListener('change', fillModels);
+  modelSel.addEventListener('change', fillYears);
+  fillBrands(); fillModels();
+
+  // categories
+  let ch = '<option value="">All categories</option>';
+  Object.keys(CATEGORIES).forEach(c => ch += `<option value="${esc(c)}">${CATEGORY_ICON[c]||''} ${esc(c)}</option>`);
+  $('#f-category').innerHTML = ch;
+
+  $('#f-parttype').disabled = true;
+  $('#f-parttype').innerHTML = '<option value="">— pick a category first —</option>';
+
+  $('#f-category').addEventListener('change', () => {
+    const c = $('#f-category').value;
+    const pt = $('#f-parttype');
+    $('#f-parttype-other').hidden = true;
+    if(!c){
+      pt.disabled = true;
+      pt.innerHTML = '<option value="">— pick a category first —</option>';
+      return;
+    }
+    pt.disabled = false;
+    let h = '<option value="">Any part type</option>';
+    CATEGORIES[c].forEach(p => h += `<option value="${esc(p)}">${esc(p)}</option>`);
+    h += '<option value="__other__">Other (type it)…</option>';
+    pt.innerHTML = h;
+  });
+  $('#f-parttype').addEventListener('change', () => {
+    $('#f-parttype-other').hidden = $('#f-parttype').value !== '__other__';
+  });
+
+  $('#btn-search').addEventListener('click', () => { readFilters(); renderResults(); });
+  $('#btn-reset').addEventListener('click', () => {
+    $('#f-keyword').value = '';
+    $('#f-condition').value = '';
+    $('#f-category').value = '';
+    $('#f-category').dispatchEvent(new Event('change'));
+    brandSel.value = '';
+    brandSel.dispatchEvent(new Event('change'));
+    brandOther.hidden = true;
+    modelOther.hidden = true;
+    $('#f-parttype-other').hidden = true;
+    browseFilters = {};
+    renderResults();
+  });
+  $('#f-keyword').addEventListener('input', () => { readFilters(); renderResults(); });
+
+  renderResults();
+}
+
+function readFilters(){
+  browseFilters = {
+    brand: $('#f-brand').value,
+    brandOther: $('#f-brand-other').value,
+    model: $('#f-model').value,
+    modelOther: $('#f-model-other').value,
+    year: $('#f-year').value,
+    category: $('#f-category').value,
+    partType: $('#f-parttype').value,
+    partOther: $('#f-parttype-other').value,
+    condition: $('#f-condition').value,
+    keyword: $('#f-keyword').value.trim(),
+  };
+}
+
+function matches(l, f){
+  if(f.category && l.category !== f.category) return false;
+  if(f.partType){
+    if(f.partType === '__other__'){
+      const t = (f.partOther||'').toLowerCase().trim();
+      if(t && !(l.partType||'').toLowerCase().includes(t)) return false;
+    } else if(l.partType !== f.partType) return false;
+  }
+  if(f.condition && l.condition !== f.condition) return false;
+  if(f.brand){
+    if(f.brand === '__other__'){
+      const t = (f.brandOther||'').toLowerCase().trim();
+      if(t && !(l.brand||'').toLowerCase().includes(t)) return false;
+    } else if(l.brand !== f.brand) return false;
+  }
+  if(f.model){
+    if(f.model === '__other__'){
+      const t = (f.modelOther||'').toLowerCase().trim();
+      if(t && !(l.model||'').toLowerCase().includes(t)) return false;
+    } else if(l.model !== f.model) return false;
+  }
+  if(f.year){
+    const y = +f.year;
+    if(!(y >= l.yearFrom && y <= l.yearTo)) return false;
+  }
+  if(f.keyword){
+    const k = f.keyword.toLowerCase();
+    const hay = [l.title, l.description, l.brand, l.model, l.category, l.partType, l.sellerName].join(' ').toLowerCase();
+    if(!hay.includes(k)) return false;
+  }
+  return true;
+}
+
+function renderResults(){
+  const f = browseFilters;
+  const pool = listings.filter(l => l.status === 'active' && !isSuspended(l.sellerPhone));
+  const results = pool.filter(l => matches(l, f)).sort((a,b) => b.createdAt - a.createdAt);
+
+  $('#res-title').textContent = f.category ? f.category : 'All parts';
+  $('#res-count').textContent = `${results.length} listing${results.length===1?'':'s'}`;
+
+  const box = $('#results');
+  if(!results.length){
+    box.innerHTML = `
+      <div class="empty" style="grid-column:1/-1">
+        <div class="ico">🔍</div>
+        <h3 style="margin:0 0 6px">No parts match your search</h3>
+        <p style="margin:0 0 14px">Try a wider year range, another category, or describe the part in the text box.</p>
+        <button class="btn ghost" onclick="document.getElementById('btn-reset').click()">Reset filters</button>
+      </div>`;
+    return;
+  }
+
+  box.innerHTML = results.map(l => {
+    const st = sellerStats(l.sellerPhone);
+    const thumb = l.photos && l.photos[0]
+      ? `<img src="${l.photos[0]}" alt="">`
+      : (CATEGORY_ICON[l.category] || '🔧');
+    const ratingTxt = st.count
+      ? `${starHTML(st.avg)} <span>${st.avg.toFixed(1)} (${st.count})</span>`
+      : `<span style="color:#9aa3b2">No ratings yet</span>`;
+    return `
+      <article class="card">
+        <div class="thumb">
+          <span class="cond ${l.condition}">${l.condition === 'new' ? 'New' : 'Used'}</span>
+          ${thumb}
+        </div>
+        <div class="body">
+          <h3>${esc(l.title)}</h3>
+          <div class="fit">${esc(l.brand)} ${esc(l.model)} · ${yearLabel(l)}</div>
+          <div class="seller">${esc(l.sellerName)} ${ratingTxt}</div>
+          <div class="foot">
+            <span class="price">${fmtPrice(l.price)}</span>
+            <button class="btn primary sm" onclick="openListing('${l.id}')">View</button>
+          </div>
+        </div>
+      </article>`;
+  }).join('');
+}
+
+/* =====================================================================
+   LISTING MODAL
+   ===================================================================== */
+function openListing(id){
+  const l = listings.find(x => x.id === id);
+  if(!l) return;
+  const st = sellerStats(l.sellerPhone);
+
+  const gallery = (l.photos && l.photos.length)
+    ? `<div class="big"><img src="${l.photos[0]}" alt=""></div>`
+    : `<div class="big">${CATEGORY_ICON[l.category] || '🔧'}</div>`;
+  const thumbs = (l.photos && l.photos.length > 1)
+    ? `<div style="display:flex;gap:8px;padding:10px 22px 0">${l.photos.slice(1).map(p=>`<img src="${p}" style="width:64px;height:64px;object-fit:cover;border-radius:8px">`).join('')}</div>`
+    : '';
+  const ratingTxt = st.count
+    ? `${starHTML(st.avg)} <b>${st.avg.toFixed(1)}</b> <span style="color:var(--muted)">· ${st.count} rating${st.count===1?'':'s'}</span>`
+    : `<span style="color:var(--muted)">No ratings yet</span>`;
+
+  openModal(`
+    <button class="close" onclick="closeModal()">✕</button>
+    <div class="sheet-head">${gallery}${thumbs}</div>
+    <div class="sheet-body">
+      <h2>${esc(l.title)}</h2>
+      <div class="meta">
+        <span class="tag brand">${esc(l.brand)} ${esc(l.model)} · ${yearLabel(l)}</span>
+        <span class="tag">${esc(l.category)} → ${esc(l.partType)}</span>
+        <span class="tag" style="background:${l.condition==='new'?'#e6f7ef':'#eef2f8'};color:${l.condition==='new'?'#0e9f6e':'#4a5464'}">
+          ${l.condition === 'new' ? '● New' : '● Used'}
+        </span>
+      </div>
+      <div style="font-size:30px;font-weight:800;letter-spacing:-.8px;color:var(--brand);margin-bottom:14px">
+        ${fmtPrice(l.price)}
+      </div>
+      <div class="specs">
+        <div class="spec"><div class="k">Fits brand</div><div class="v">${esc(l.brand)}</div></div>
+        <div class="spec"><div class="k">Fits model</div><div class="v">${esc(l.model)}</div></div>
+        <div class="spec"><div class="k">Years</div><div class="v">${yearLabel(l)}</div></div>
+        <div class="spec"><div class="k">Category</div><div class="v">${esc(l.category)}</div></div>
+      </div>
+      ${l.description ? `<p style="margin:0 0 6px;color:#3b4453">${esc(l.description)}</p>` : ''}
+      <div class="notice info" style="margin-top:16px">
+        <span>💵</span>
+        <div><b>Cash on pickup.</b> Contact the seller, inspect the part and pay in person.
+        <br><span style="opacity:.8">Online payment — coming soon.</span></div>
+      </div>
+      <div class="sellerbox">
+        <div class="top">
+          <div>
+            <div style="font-weight:800;font-size:16px">${esc(l.sellerName)}</div>
+            <div style="margin-top:3px">${ratingTxt}</div>
+          </div>
+          <button class="btn ghost sm" onclick="openRate('${esc(l.sellerPhone)}','${esc(l.sellerName)}')">Rate this seller</button>
+        </div>
+        <div id="phone-zone" style="margin-top:12px">
+          <button class="btn primary" style="width:100%;justify-content:center" onclick="revealPhone('${esc(l.sellerPhone)}')">
+            📞 Show phone number
+          </button>
+        </div>
+      </div>
+    </div>`);
+}
+
+function revealPhone(phone){
+  $('#phone-zone').innerHTML = `
+    <div class="phonebox">
+      <div style="font-size:12.5px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:#0a6b48">
+        Call the seller
+      </div>
+      <div class="num">${esc(phone)}</div>
+      <a href="tel:${esc(phone)}" class="btn primary" style="justify-content:center;text-decoration:none">
+        📞 Call now
+      </a>
+      <div style="font-size:12px;color:#3f6b57;margin-top:8px">
+        Agree on a meeting point · Inspect the part · Pay cash
+      </div>
+    </div>`;
+}
+
+/* =====================================================================
+   MODAL
+   ===================================================================== */
+function openModal(html){
+  $('#sheet').innerHTML = html;
+  $('#modal').hidden = false;
+  document.body.style.overflow = 'hidden';
+}
+function closeModal(){
+  $('#modal').hidden = true;
+  $('#sheet').innerHTML = '';
+  document.body.style.overflow = '';
+}
+$('#modal').addEventListener('click', e => { if(e.target.id === 'modal') closeModal(); });
+document.addEventListener('keydown', e => { if(e.key === 'Escape') closeModal(); });
+
+/* =====================================================================
+   RATING
+   ===================================================================== */
+let rateValue = 0;
+function openRate(sellerPhone, sellerName){
+  rateValue = 0;
+  openModal(`
+    <button class="close" onclick="closeModal()">✕</button>
+    <div class="sheet-body" style="padding:28px">
+      <h2 style="margin:0 0 4px">Rate ${esc(sellerName)}</h2>
+      <p style="margin:0;color:var(--muted);font-size:14px">
+        Your rating helps other buyers. Sellers averaging ${SUSPEND_AVG}/5 or less are suspended automatically.
+      </p>
+      <div class="starpick" id="starpick">
+        ${[1,2,3,4,5].map(i => `<button type="button" data-v="${i}">★</button>`).join('')}
+      </div>
+      <div style="text-align:center;font-size:13px;color:var(--muted);margin-bottom:16px" id="rate-label">Tap a star</div>
+      <label class="field" style="margin-bottom:14px">
+        Comment (optional)
+        <textarea id="rate-comment" placeholder="How was the part, the price, the communication?"></textarea>
+      </label>
+      <label class="field" style="margin-bottom:18px">
+        Your phone (optional)
+        <input type="tel" id="rate-buyer" placeholder="Your phone number">
+      </label>
+      <div class="factions" style="margin-top:0">
+        <button class="btn primary" id="rate-submit" style="flex:1;justify-content:center">Submit rating</button>
+      </div>
+    </div>`);
+
+  const labels = ['','Very bad','Bad','Okay','Good','Excellent'];
+  $('#starpick').addEventListener('click', e => {
+    const b = e.target.closest('button[data-v]');
+    if(!b) return;
+    rateValue = +b.dataset.v;
+    $$('#starpick button').forEach(x => x.classList.toggle('on', +x.dataset.v <= rateValue));
+    $('#rate-label').textContent = `${rateValue}/5 — ${labels[rateValue]}`;
+  });
+
+  $('#rate-submit').addEventListener('click', () => {
+    if(!rateValue){ toast('Pick a star rating first', 'bad'); return; }
+    ratings.push({
+      id: uid(),
+      sellerPhone: normPhone(sellerPhone),
+      buyerPhone: normPhone($('#rate-buyer').value || ''),
+      stars: rateValue,
+      comment: $('#rate-comment').value.trim(),
+      date: Date.now(),
+    });
+    store.write(K.R, ratings);
+
+    const st = sellerStats(sellerPhone);
+    closeModal();
+    if(st.suspended){
+      toast(`${sellerName} is now suspended (avg ${st.avg.toFixed(1)}/5)`, 'bad');
+    } else {
+      toast('Thanks! Your rating was saved.', 'ok');
+    }
+    renderResults();
+    if(session.phone) renderDashboard();
+  });
+}
+
+/* =====================================================================
+   SELL FORM
+   ===================================================================== */
+function initSell(){
+  /* ---- state ---- */
+  let sellPhotos = [];
+  let sellCondition = 'used';
+  let autoTitleEnabled = true;
+
+  /* ---- refs ---- */
+  const fi = document.createElement('input');
+  fi.type = 'file'; fi.accept = 'image/*'; fi.multiple = true; fi.hidden = true;
+  document.body.appendChild(fi);
+
+  const photoRow = document.getElementById('photo-row');
+  const catSel = document.getElementById('s-category');
+  const ptSel = document.getElementById('s-parttype');
+  const ptOther = document.getElementById('s-parttype-other');
+  const brandSel = document.getElementById('s-brand');
+  const modelSel = document.getElementById('s-model');
+  const yfSel = document.getElementById('s-yearfrom');
+  const ytSel = document.getElementById('s-yearto');
+  const brandOther = document.getElementById('s-brand-other');
+  const modelOther = document.getElementById('s-model-other');
+  const titleInput = document.getElementById('s-title');
+
+  /* ---- photos ---- */
+  function renderPhotos(){
+    photoRow.innerHTML = sellPhotos.map((p,i)=>`
+      <div class="photo-slot">
+        <img src="${p}" alt="">
+        <button type="button" class="rm" data-i="${i}">✕</button>
+      </div>`).join('')
+      + (sellPhotos.length < MAX_PHOTOS ? '<div class="photo-slot" id="add-photo">＋</div>' : '');
+    const add = document.getElementById('add-photo');
+    if(add) add.addEventListener('click', ()=>fi.click());
+    photoRow.querySelectorAll('.rm').forEach(b => {
+      b.addEventListener('click', ()=>{
+        sellPhotos.splice(+b.dataset.i, 1);
+        renderPhotos();
+      });
+    });
+  }
+  renderPhotos();
+  fi.addEventListener('change', async () => {
+    const files = Array.from(fi.files).slice(0, MAX_PHOTOS - sellPhotos.length);
+    for(const f of files){
+      try { sellPhotos.push(await readImage(f)); } catch(e){ console.error(e); }
+    }
+    fi.value = '';
+    renderPhotos();
+  });
+
+  /* ---- condition ---- */
+  document.getElementById('s-cond').addEventListener('click', e => {
+    const b = e.target.closest('button[data-v]');
+    if(!b) return;
+    sellCondition = b.dataset.v;
+    $$('#s-cond button').forEach(x => x.classList.toggle('on', x === b));
+  });
+
+  /* ---- categories ---- */
+  let ch = '<option value="">— select category —</option>';
+  Object.keys(CATEGORIES).forEach(c => ch += `<option value="${esc(c)}">${CATEGORY_ICON[c]||''} ${esc(c)}</option>`);
+  catSel.innerHTML = ch;
+
+  function fillPartTypes(){
+    const c = catSel.value;
+    ptOther.hidden = true;
+    if(!c){
+      ptSel.disabled = true;
+      ptSel.innerHTML = '<option value="">— pick a category first —</option>';
+      return;
+    }
+    ptSel.disabled = false;
+    let h = '<option value="">— select part type —</option>';
+    CATEGORIES[c].forEach(p => h += `<option value="${esc(p)}">${esc(p)}</option>`);
+    h += '<option value="__other__">Other (type it)…</option>';
+    ptSel.innerHTML = h;
+  }
+  fillPartTypes();
+  catSel.addEventListener('change', ()=>{ fillPartTypes(); autoTitle(); });
+  ptSel.addEventListener('change', ()=>{ ptOther.hidden = ptSel.value !== '__other__'; autoTitle(); });
+  ptOther.addEventListener('input', autoTitle);
+
+  /* ---- vehicle ---- */
+  let bh = '<option value="">— select brand —</option>';
+  Object.keys(VEHICLES).sort().forEach(b => bh += `<option value="${esc(b)}">${esc(b)}</option>`);
+  bh += '<option value="__other__">Other (type it)…</option>';
+  brandSel.innerHTML = bh;
+
+  function fillSellModels(){
+    const b = brandSel.value;
+    brandOther.hidden = b !== '__other__';
+    if(!b){
+      modelSel.disabled = true;
+      modelSel.innerHTML = '<option value="">— pick a brand first —</option>';
+      fillSellYears();
+      return;
+    }
+    modelSel.disabled = false;
+    let h = '<option value="">— select model —</option>';
+    if(b === '__other__'){
+      h = '<option value="__other__">Other (type it)…</option>';
+    } else {
+      Object.keys(VEHICLES[b]||{}).sort().forEach(m => h += `<option value="${esc(m)}">${esc(m)}</option>`);
+      h += '<option value="__other__">Other (type it)…</option>';
+    }
+    modelSel.innerHTML = h;
+    fillSellYears();
+  }
+
+  function fillSellYears(){
+    const b = brandSel.value, m = modelSel.value;
+    modelOther.hidden = m !== '__other__';
+    let range = { from:1985, to:2026 };
+    if(b && m && b !== '__other__' && m !== '__other__' && VEHICLES[b] && VEHICLES[b][m]) range = VEHICLES[b][m];
+    let h = '';
+    for(let y=range.to; y>=range.from; y--) h += `<option value="${y}">${y}</option>`;
+    yfSel.innerHTML = h;
+    ytSel.innerHTML = h;
+    yfSel.value = String(range.from);
+    ytSel.value = String(range.to);
+    autoTitle();
+  }
+
+  brandSel.addEventListener('change', fillSellModels);
+  modelSel.addEventListener('change', fillSellYears);
+  brandOther.addEventListener('input', autoTitle);
+  modelOther.addEventListener('input', autoTitle);
+  yfSel.addEventListener('change', autoTitle);
+  ytSel.addEventListener('change', autoTitle);
+  fillSellModels();
+
+  function autoTitle(){
+    if(!autoTitleEnabled) return;
+    const parts = [];
+    const ptv = ptSel.value === '__other__' ? ptOther.value.trim() : ptSel.value;
+    const b = brandSel.value === '__other__' ? brandOther.value.trim() : brandSel.value;
+    const m = modelSel.value === '__other__' ? modelOther.value.trim() : modelSel.value;
+    const yf = yfSel.value, yt = ytSel.value;
+    if(ptv) parts.push(ptv);
+    if(b) parts.push('— ' + b);
+    if(m) parts.push(m);
+    if(yf && yt && (ptv || b || m)) parts.push(yf === yt ? `(${yf})` : `(${yf}–${yt})`);
+    const t = parts.join(' ').trim();
+    if(t.length > 4) titleInput.value = t;
+  }
+  titleInput.addEventListener('input', ()=>{ autoTitleEnabled = titleInput.value.trim().length === 0; });
+
+  /* ---- account UI ---- */
+  function updateAccountUI(){
+    const loggedIn = !!(session.phone && sellers[session.phone]);
+    document.getElementById('sell-loggedin').hidden = !loggedIn;
+    document.getElementById('sell-signup').hidden  = !!loggedIn;
+    if(loggedIn){
+      document.getElementById('sell-loggedin-name').textContent  = sellers[session.phone].name;
+      document.getElementById('sell-loggedin-phone').textContent = session.phone;
+    }
+  }
+  updateAccountUI();
+  window.updateSellAccountUI = updateAccountUI;
+
+  document.getElementById('sell-logout').addEventListener('click', ()=>{
+    session.phone = null;
+    store.write(K.SESSION, null);
+    updateAccountUI();
+    toast('Logged out');
+  });
+
+  /* ---- reset ---- */
+  function resetForm(){
+    sellPhotos = [];
+    renderPhotos();
+    titleInput.value = '';
+    document.getElementById('s-desc').value = '';
+    document.getElementById('s-price').value = '';
+    catSel.value = '';
+    fillPartTypes();
+    brandSel.value = '';
+    brandOther.value = '';
+    brandOther.hidden = true;
+    modelOther.value = '';
+    modelOther.hidden = true;
+    ptOther.value = '';
+    ptOther.hidden = true;
+    fillSellModels();
+    sellCondition = 'used';
+    $$('#s-cond button').forEach(x => x.classList.toggle('on', x.dataset.v === 'used'));
+    autoTitleEnabled = true;
+    updateAccountUI();
+  }
+
+  /* ---- submit ---- */
+  document.getElementById('sell-form').addEventListener('submit', e => {
+    e.preventDefault();
+
+    /* --- ACCOUNT --- */
+    let phone, name;
+    if(session.phone && sellers[session.phone]){
+      phone = session.phone;
+      name  = sellers[session.phone].name;
+    } else {
+      const rawPhone = document.getElementById('s-phone').value.trim();
+      const pass     = document.getElementById('s-pass').value;
+      const pass2    = document.getElementById('s-pass2').value;
+      name = document.getElementById('s-name').value.trim();
+
+      if(!name){ toast('Please enter your name or shop name', 'bad'); return; }
+      phone = normPhone(rawPhone);
+      if(phone.length < 6){ toast('Please enter a valid phone number (at least 6 digits)', 'bad'); return; }
+      if(pass.length < 4){ toast('Password must be at least 4 characters', 'bad'); return; }
+      if(pass !== pass2){ toast('Passwords do not match', 'bad'); return; }
+
+      const existing = sellers[phone];
+      if(existing){
+        if(existing.passwordHash !== hashPass(pass)){
+          toast('That phone number already has an account — wrong password.', 'bad');
+          return;
+        }
+        session.phone = phone;
+        store.write(K.SESSION, phone);
+        name = existing.name;
+      } else {
+        sellers[phone] = {
+          phone, name,
+          passwordHash: hashPass(pass),
+          createdAt: Date.now(),
+        };
+        store.write(K.S, sellers);
+        session.phone = phone;
+        store.write(K.SESSION, phone);
+      }
+    }
+
+    /* --- SUSPENSION --- */
+    if(isSuspended(phone)){
+      toast('Your account is suspended and cannot publish new parts.', 'bad');
+      return;
+    }
+
+    /* --- PART DETAILS --- */
+    const cat = catSel.value;
+    if(!cat){ toast('Please select a category', 'bad'); return; }
+
+    const partType = ptSel.value === '__other__'
+      ? ptOther.value.trim()
+      : ptSel.value;
+    if(!partType){ toast('Please select or type the part type', 'bad'); return; }
+
+    const priceRaw = document.getElementById('s-price').value;
+    if(priceRaw === ''){ toast('Please enter a price', 'bad'); return; }
+    const price = +priceRaw;
+    if(!(price >= 0)){ toast('Price must be a positive number', 'bad'); return; }
+
+    const brand = brandSel.value === '__other__'
+      ? brandOther.value.trim()
+      : brandSel.value;
+    if(!brand){ toast('Please select the brand it fits', 'bad'); return; }
+
+    const model = modelSel.value === '__other__'
+      ? modelOther.value.trim()
+      : modelSel.value;
+    if(!model){ toast('Please select the model it fits', 'bad'); return; }
+
+    const yf = +yfSel.value, yt = +ytSel.value;
+    const yearFrom = Math.min(yf, yt), yearTo = Math.max(yf, yt);
+
+    const title = titleInput.value.trim()
+      || `${partType} — ${brand} ${model} (${yearFrom}-${yearTo})`;
+
+    /* --- CREATE --- */
+    const listing = {
+      id: uid(),
+      title,
+      description: document.getElementById('s-desc').value.trim(),
+      price,
+      condition: sellCondition,
+      category: cat,
+      partType,
+      brand, model, yearFrom, yearTo,
+      photos: sellPhotos.slice(),
+      sellerPhone: phone,
+      sellerName: name,
+      status: 'active',
+      createdAt: Date.now(),
+    };
+    listings.push(listing);
+    store.write(K.L, listings);
+
+    resetForm();
+    toast('✅ Listing published! Buyers can now find it.', 'ok');
+    go('browse');
+  });
+}
+
+/* =====================================================================
+   DASHBOARD
+   ===================================================================== */
+function initDashboard(){
+  document.getElementById('login-btn').addEventListener('click', tryLogin);
+  document.getElementById('login-pass').addEventListener('keydown', e => { if(e.key==='Enter') tryLogin(); });
+  document.getElementById('login-phone').addEventListener('keydown', e => { if(e.key==='Enter') tryLogin(); });
+  document.getElementById('dash-logout').addEventListener('click', ()=>{
+    session.phone = null;
+    store.write(K.SESSION, null);
+    renderDashboard();
+    toast('Logged out');
+  });
+  document.getElementById('d-reseed').addEventListener('click', ()=>{
+    if(!confirm('Reset all demo data? This deletes every listing, seller and rating.')) return;
+    localStorage.removeItem(K.L); localStorage.removeItem(K.S); localStorage.removeItem(K.R); localStorage.removeItem(K.SESSION);
+    location.reload();
+  });
+  renderDashboard();
+}
+
+function tryLogin(){
+  const phone = normPhone(document.getElementById('login-phone').value);
+  const pass  = document.getElementById('login-pass').value;
+  if(!phone || !pass){ toast('Enter both phone number and password', 'bad'); return; }
+  const s = sellers[phone];
+  if(!s){ toast('No account with that phone number. Publish a part first.', 'bad'); return; }
+  if(s.passwordHash !== hashPass(pass)){ toast('Wrong password', 'bad'); return; }
+  session.phone = phone;
+  store.write(K.SESSION, phone);
+  document.getElementById('login-pass').value = '';
+  renderDashboard();
+  toast('Welcome back, ' + s.name, 'ok');
+}
+
+function renderDashboard(){
+  const loggedIn = !!(session.phone && sellers[session.phone]);
+  document.getElementById('dash-login-view').hidden = loggedIn;
+  document.getElementById('dash-main-view').hidden  = !loggedIn;
+  if(loggedIn) renderDashboardBody(session.phone);
+}
+
+function renderDashboardBody(phone){
+  const p = normPhone(phone);
+  const box = document.getElementById('dash-body');
+  const seller = sellers[p];
+  if(!seller){ box.innerHTML = ''; return; }
+
+  const st = sellerStats(p);
+  const mine = listings.filter(l => l.sellerPhone === p).sort((a,b)=>b.createdAt-a.createdAt);
+  const active = mine.filter(l => l.status === 'active');
+  const sold   = mine.filter(l => l.status === 'sold');
+
+  const statusBanner = st.suspended
+    ? `<div class="notice bad" style="margin-top:16px">
+         <span>🚫</span>
+         <div><b>Account suspended.</b> Your average rating is ${st.avg.toFixed(1)}/5 across ${st.count} ratings,
+         at or below the ${SUSPEND_AVG}/5 threshold. Your listings are hidden from buyers and you cannot publish new parts.</div>
+       </div>`
+    : `<div class="notice ok" style="margin-top:16px">
+         <span>✅</span>
+         <div><b>Account active.</b> Sellers averaging ${SUSPEND_AVG}/5 or less (after ${SUSPEND_MIN_RATINGS} ratings) are suspended automatically.</div>
+       </div>`;
+
+  const activeHTML = active.length
+    ? `<div class="mini-list">${active.map(l => `
+        <div class="mini">
+          <div class="mthumb">${l.photos && l.photos[0] ? `<img src="${l.photos[0]}">` : (CATEGORY_ICON[l.category]||'🔧')}</div>
+          <div class="mbody">
+            <b>${esc(l.title)}</b>
+            <span>${fmtPrice(l.price)} · ${l.condition === 'new' ? 'New' : 'Used'} · ${esc(l.category)}</span>
+          </div>
+          <button class="btn ok sm"     onclick="markSold('${l.id}')">Mark sold</button>
+          <button class="btn danger sm" onclick="deleteListing('${l.id}')">Delete</button>
+        </div>`).join('')}</div>`
+    : `<div class="empty" style="padding:32px"><div class="ico">📦</div>No active listings.</div>`;
+
+  const soldHTML = sold.length
+    ? `<div class="mini-list">${sold.map(l => `
+        <div class="mini" style="opacity:.7">
+          <div class="mthumb">${l.photos && l.photos[0] ? `<img src="${l.photos[0]}">` : (CATEGORY_ICON[l.category]||'🔧')}</div>
+          <div class="mbody">
+            <b style="text-decoration:line-through">${esc(l.title)}</b>
+            <span>${fmtPrice(l.price)} · Sold</span>
+          </div>
+          <button class="btn ghost sm" onclick="markActive('${l.id}')">Relist</button>
+          <button class="btn danger sm" onclick="deleteListing('${l.id}')">Delete</button>
+        </div>`).join('')}</div>`
+    : '';
+
+  const ratingsHTML = st.ratings.length
+    ? `<div class="mini-list">${st.ratings.slice().reverse().map(r => `
+        <div class="mini">
+          <div class="mthumb" style="font-size:13px;font-weight:800;color:#f59e0b;background:#fff8e8">${r.stars}★</div>
+          <div class="mbody">
+            <b>${esc(r.comment || 'No comment')}</b>
+            <span>${new Date(r.date).toLocaleDateString()} · ${r.buyerPhone ? esc(r.buyerPhone) : 'anonymous'}</span>
+          </div>
+        </div>`).join('')}</div>`
+    : `<div class="empty" style="padding:28px"><div class="ico">⭐</div>No ratings yet.</div>`;
+
+  box.innerHTML = `
+    <div class="panel">
+      <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+        <div style="width:54px;height:54px;border-radius:14px;background:linear-gradient(135deg,var(--brand),#4f8bff);
+                    display:grid;place-items:center;color:#fff;font-size:22px;font-weight:800">
+          ${esc((seller.name||'S')[0].toUpperCase())}
+        </div>
+        <div>
+          <div style="font-size:19px;font-weight:800;letter-spacing:-.4px">${esc(seller.name)}</div>
+          <div style="color:var(--muted);font-size:13.5px">${esc(p)}</div>
+        </div>
+        <div style="margin-left:auto;text-align:right">
+          ${st.count ? starHTML(st.avg) : ''}
+          <div style="font-size:13px;color:var(--muted)">
+            ${st.count ? `<b style="color:var(--ink)">${st.avg.toFixed(1)}</b>/5 · ${st.count} rating${st.count===1?'':'s'}` : 'No ratings yet'}
+          </div>
+        </div>
+      </div>
+
+      <div class="stat-row">
+        <div class="stat"><div class="k">Active</div><div class="v">${active.length}</div></div>
+        <div class="stat"><div class="k">Sold</div><div class="v">${sold.length}</div></div>
+        <div class="stat"><div class="k">Average rating</div><div class="v">${st.count ? st.avg.toFixed(1) : '—'}</div></div>
+        <div class="stat"><div class="k">Status</div>
+          <div class="v" style="color:${st.suspended ? 'var(--bad)' : 'var(--ok)'}">
+            ${st.suspended ? 'Suspended' : 'Active'}
+          </div>
+        </div>
+      </div>
+
+      ${statusBanner}
+    </div>
+
+    <div class="panel" style="margin-top:20px">
+      <div class="section-title" style="margin-top:0">Active listings</div>
+      ${activeHTML}
+    </div>
+
+    ${sold.length ? `
+    <div class="panel" style="margin-top:20px">
+      <div class="section-title" style="margin-top:0">Sold / hidden</div>
+      ${soldHTML}
+    </div>` : ''}
+
+    <div class="panel" style="margin-top:20px">
+      <div class="section-title" style="margin-top:0">Ratings received</div>
+      ${ratingsHTML}
+    </div>`;
+}
+
+function markSold(id){
+  const l = listings.find(x => x.id === id);
+  if(!l) return;
+  l.status = 'sold';
+  store.write(K.L, listings);
+  toast('Marked as sold — hidden from buyers', 'ok');
+  renderDashboardBody(session.phone);
+  renderResults();
+}
+function markActive(id){
+  const l = listings.find(x => x.id === id);
+  if(!l) return;
+  l.status = 'active';
+  store.write(K.L, listings);
+  toast('Listing relisted', 'ok');
+  renderDashboardBody(session.phone);
+  renderResults();
+}
+function deleteListing(id){
+  if(!confirm('Delete this listing permanently?')) return;
+  listings = listings.filter(l => l.id !== id);
+  store.write(K.L, listings);
+  toast('Listing deleted');
+  renderDashboardBody(session.phone);
+  renderResults();
+}
+
+/* expose for inline onclick */
+window.openListing   = openListing;
+window.revealPhone   = revealPhone;
+window.closeModal    = closeModal;
+window.openRate      = openRate;
+window.markSold      = markSold;
+window.markActive    = markActive;
+window.deleteListing = deleteListing;
+window.go            = go;
+
+/* =====================================================================
+   INIT
+   ===================================================================== */
+$$('.topbar nav button').forEach(b => b.addEventListener('click', () => go(b.dataset.nav)));
+
+initBrowse();
+initSell();
+initDashboard();
+</script>
+</body>
+</html>
