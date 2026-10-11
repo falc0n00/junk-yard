@@ -247,7 +247,19 @@ async function doSignup(){
     return;
   }
 
-  // 3) Insert the seller profile
+    // 3) Make sure we have a live session before inserting into sellers
+  if (!authData.session) {
+    const { error: signInErr } = await supabase.auth.signInWithPassword({
+      email, password: pass,
+    });
+    if (signInErr) {
+      btn.disabled = false;
+      toast('Signup ok but login failed: ' + signInErr.message, 'bad');
+      return;
+    }
+  }
+
+  // 4) Insert the seller profile (now authenticated)
   const { error: insErr } = await supabase.from('sellers').insert({
     user_id: authData.user.id,
     name, phone,
