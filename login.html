@@ -218,7 +218,10 @@ async function doSignup(){
   const btn = $('#signup-btn');
   btn.disabled = true;
 
-  // 1) Check phone isn't already taken
+  // 1) Clear any stale session (from an earlier failed attempt)
+  try { await supabase.auth.signOut(); } catch(e){}
+
+  // 2) Check phone isn't already taken
   const { data: existing } = await supabase
     .from('sellers')
     .select('id')
@@ -231,7 +234,7 @@ async function doSignup(){
     return;
   }
 
-  // 2) Create the auth user
+  // 3) Create the auth user
   const { data: authData, error: authErr } = await supabase.auth.signUp({
     email, password: pass,
   });
@@ -247,21 +250,33 @@ async function doSignup(){
     return;
   }
 
-    // 3) Make sure we have a live session before inserting into sellers
-  if (!authData.session) {
-    const { error: signInErr } = await supabase.auth.signInWithPassword({
+  // 4) Make sure we have a live session — wait/retry if needed
+  let { data: sessionData } = await supabase.auth.getSession();
+
+  if(!sessionData.session){
+    // No session yet: try explicit sign-in
+    const { error: siErr } = await supabase.auth.signInWithPassword({
       email, password: pass,
     });
-    if (signInErr) {
+    if(siErr){
       btn.disabled = false;
-      toast('Signup ok but login failed: ' + signInErr.message, 'bad');
+      toast('Signup ok but sign-in failed: ' + siErr.message, 'bad');
       return;
     }
+    // Give the client a moment to persist the session
+    await new Promise(r => setTimeout(r, 400));
+    ({ data: sessionData } = await supabase.auth.getSession());
   }
 
-  // 4) Insert the seller profile (now authenticated)
+  if(!sessionData.session){
+    btn.disabled = false;
+    toast('Could not establish session — try logging in.', 'bad');
+    return;
+  }
+
+  // 5) Insert the seller profile (now guaranteed to be authenticated)
   const { error: insErr } = await supabase.from('sellers').insert({
-    user_id: authData.user.id,
+    user_id: sessionData.session.user.id,
     name, phone,
   });
 
