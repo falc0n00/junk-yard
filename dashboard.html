@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>rrr
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PartYard — My dashboard</title>
+<style>
+  :root{
+    --bg:#f4f6f9;--card:#fff;--ink:#101623;--muted:#6b7280;--line:#e4e8ee;
+    --brand:#1257f0;--brand-d:#0b3fbb;--ok:#0e9f6e;--bad:#e02424;
+    --r:14px;--sh:0 1px 2px rgba(16,22,35,.06),0 8px 24px rgba(16,22,35,.06);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,Inter,Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5}
+  button,input{font:inherit;color:inherit}
+  button{cursor:pointer;border:none;background:none}
+  a{color:var(--brand);font-weight:700;text-decoration:none}
+  .wrap{max-width:1100px;margin:0 auto;padding:0 18px}
+  .topbar{background:#fff;border-bottom:1px solid var(--line);padding:14px 0;position:sticky;top:0;z-index:10}
+  .topbar .wrap{display:flex;align-items:center;gap:14px}
+  .logo{font-weight:800;font-size:18px;display:flex;align-items:center;gap:8px;cursor:pointer}
+  .logo .dot{width:24px;height:24px;border-radius:7px;background:linear-gradient(135deg,var(--brand),#4f8bff);display:grid;place-items:center;color:#fff;font-size:12px}
+  .logo span{color:var(--brand)}
+  .nav{display:flex;gap:6px;margin-left:auto}
+  .nav a{padding:8px 13px;border-radius:9px;font-weight:600;font-size:13.5px;color:var(--muted);text-decoration:none}
+  .nav a:hover{background:#eef2f8;color:var(--ink)}
+  .nav a.on{background:var(--brand);color:#fff}
+  main{padding:26px 0 60px}
+  h1{font-size:22px;letter-spacing:-.4px;margin:0 0 4px}
+  h2{font-size:16px;margin:0 0 12px;letter-spacing:-.2px}
+  .muted{color:var(--muted);font-size:13.5px}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh);padding:22px;margin-bottom:20px}
+  .panel.tight{padding:0;overflow:hidden}
+  .panel.tight .panel-head{padding:18px 22px 0}
+  .badge{padding:4px 10px;border-radius:20px;font-size:11.5px;font-weight:800;letter-spacing:.3px;display:inline-block}
+  .badge.ok{background:#e6f7ef;color:#0e9f6e}
+  .badge.bad{background:#fdecec;color:#e02424}
+  .badge.new{background:#e6f7ef;color:#0e9f6e}
+  .badge.used{background:#eef2f8;color:#4a5464}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin:16px 0 0}
+  .stat{background:#f8fafd;border:1px solid var(--line);border-radius:12px;padding:14px}
+  .stat .k{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);font-weight:700}
+  .stat .v{font-size:22px;font-weight:800;margin-top:3px;letter-spacing:-.5px}
+  .row{display:flex;gap:12px;align-items:center;border-bottom:1px solid var(--line);padding:14px 22px}
+  .row:last-child{border-bottom:none}
+  .row .thumb{width:58px;height:58px;border-radius:10px;background:#e9eef7;display:grid;place-items:center;font-size:24px;overflow:hidden;flex:0 0 auto}
+  .row .thumb img{width:100%;height:100%;object-fit:cover}
+  .row .info{flex:1;min-width:0}
+  .row .info b{display:block;font-size:14.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .row .info span{font-size:12.5px;color:var(--muted)}
+  .row .actions{display:flex;gap:6px;flex-wrap:wrap}
+  .btn{padding:10px 16px;border-radius:10px;font-weight:700;font-size:13.5px;transition:.15s;display:inline-flex;align-items:center;gap:6px}
+  .btn.sm{padding:7px 12px;font-size:12.5px;border-radius:8px}
+  .btn.primary{background:var(--brand);color:#fff}
+  .btn.primary:hover{background:var(--brand-d)}
+  .btn.ok{background:#e6f7ef;color:#0a6b48}
+  .btn.danger{background:#fdecec;color:var(--bad)}
+  .btn.ghost{background:#eef2f8;color:#38404f}
+  .btn:disabled{opacity:.5;cursor:not-allowed}
+  .stars{color:#f59e0b;letter-spacing:1px}
+  .stars .off{color:#d7dce5}
+  .empty{text-align:center;padding:40px 20px;color:var(--muted)}
+  .empty .ico{font-size:38px;margin-bottom:8px}
+  .notice{padding:13px 15px;border-radius:11px;font-size:13.5px;display:flex;gap:10px;align-items:flex-start;margin-top:16px}
+  .notice.info{background:#eef4ff;color:#1c3f8f}
+  .notice.ok{background:#e6f7ef;color:#0a6b48}
+  .notice.bad{background:#fdecec;color:#96201f}
+  .center{max-width:440px;margin:60px auto;text-align:center}
+  #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#101623;color:#fff;padding:13px 22px;border-radius:12px;font-weight:600;font-size:14px;z-index:200;transition:.25s;opacity:0;pointer-events:none;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+  #toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+  #toast.ok{background:#0e9f6e}#toast.bad{background:#e02424}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap">
+    <div class="logo" onclick="location.href='/'">
+      <span class="dot">🔧</span>Part<span>Yard</span>
+    </div>
+    <nav class="nav">
+      <a href="/">Browse</a>
+      <a href="/sell.html">Sell a part</a>
+      <a href="/dashboard.html" class="on">My dashboard</a>
+      <a href="#" id="logout">Log out</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <div id="loading" class="center"><p class="muted">Loading…</p></div>
+  <div id="content" hidden></div>
+</main>
+
+<div id="toast"></div>
+
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+// ================================
+const SUPABASE_URL      = 'https://fkaklqdiwwjuhkkbksxt.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_-6V3AfOE1A88ezv67RZ5Pg_zsxhgJ7x';
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// ================================
+const $ = (s) => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmtPrice = n => '$' + Number(n||0).toLocaleString();
+const yearLabel = l => l.year_from === l.year_to ? String(l.year_from) : `${l.year_from}–${l.year_to}`;
+
+const CATEGORY_ICON = {
+  'Engine':'⚙️','Gearbox':'🔧','Suspension':'🌀','Brakes':'🛑','Electric':'⚡',
+  'Electronic':'💻','Steering':'🎯','Wheels':'🛞','Cooling':'❄️','Heating':'🔥',
+  'Air Conditioning':'🧊','Lights':'💡','Interior':'🪑','Safety':'🛡️'
+};
+
+function toast(msg, type=''){
+  const t = $('#toast');
+  t.textContent = msg; t.className = 'show ' + type;
+  clearTimeout(t._t);
+  t._t = setTimeout(()=>{ t.className = type; }, 2600);
+}
+
+function starsHTML(avg){
+  const full = Math.round(avg);
+  let h = '';
+  for(let i=1;i<=5;i++) h += i<=full ? '★' : '<span class="off">★</span>';
+  return `<span class="stars">${h}</span>`;
+}
+
+// ---------- Auth guard ----------
+async function requireAuth(){
+  const { data: { session } } = await supabase.auth.getSession();
+  if(!session){
+    location.href = '/login.html?next=/dashboard.html';
+    return null;
+  }
+  return session;
+}
+
+$('#logout').addEventListener('click', async (e) => {
+  e.preventDefault();
+  await supabase.auth.signOut();
+  location.href = '/';
+});
+
+// ---------- Load ----------
+async function load(){
+  const session = await requireAuth();
+  if(!session) return;
+
+  // Get seller profile
+  const { data: seller, error: sErr } = await supabase
+    .from('sellers')
+    .select('id, name, phone, suspended, created_at')
+    .eq('user_id', session.user.id)
+    .maybeSingle();
+
+  if(sErr){
+    $('#loading').innerHTML = `<p class="muted">Error: ${esc(sErr.message)}</p>`;
+    return;
+  }
+  if(!seller){
+    $('#loading').innerHTML = `
+      <div class="panel center">
+        <h2>No seller profile found</h2>
+        <p class="muted">Your account exists but has no seller profile. This can happen if signup was interrupted.</p>
+        <a class="btn primary" href="/sell.html" style="margin-top:14px">Create a listing to finish setup</a>
+      </div>`;
+    return;
+  }
+
+  // Get listings
+  const { data: listings } = await supabase
+    .from('listings')
+    .select('id, title, brand, model, year_from, year_to, category, part_type, condition, price, photos, status, created_at')
+    .eq('seller_id', seller.id)
+    .order('created_at', { ascending: false });
+
+  // Get ratings
+  const { data: ratings } = await supabase
+    .from('ratings')
+    .select('id, stars, comment, created_at, buyer_phone')
+    .eq('seller_id', seller.id)
+    .order('created_at', { ascending: false });
+
+  const all = listings || [];
+  const active = all.filter(l => l.status === 'active');
+  const sold   = all.filter(l => l.status === 'sold');
+
+  const rs = ratings || [];
+  const avg = rs.length ? rs.reduce((a,r)=>a+r.stars,0) / rs.length : 0;
+  const suspended = seller.suspended;
+
+  const banner = suspended
+    ? `<div class="notice bad">
+         <span>🚫</span>
+         <div><b>Account suspended.</b> Your average rating is ${avg.toFixed(1)}/5 across ${rs.length} ratings,
+         at or below the 2.0/5 threshold. Your listings are hidden from buyers and you cannot publish new parts.</div>
+       </div>`
+    : `<div class="notice ok">
+         <span>✅</span>
+         <div><b>Account active.</b> Sellers averaging 2.0/5 or less (after 3 ratings) are suspended automatically.</div>
+       </div>`;
+
+  $('#content').innerHTML = `
+    <div class="panel">
+      <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+        <div style="width:54px;height:54px;border-radius:14px;background:linear-gradient(135deg,var(--brand),#4f8bff);
+                    display:grid;place-items:center;color:#fff;font-size:22px;font-weight:800">
+          ${esc((seller.name||'S')[0].toUpperCase())}
+        </div>
+        <div>
+          <h1 style="margin:0">${esc(seller.name)}</h1>
+          <div class="muted">${esc(seller.phone)}</div>
+        </div>
+        <div style="margin-left:auto;text-align:right">
+          ${rs.length ? starsHTML(avg) : ''}
+          <div class="muted">
+            ${rs.length ? `<b style="color:var(--ink)">${avg.toFixed(1)}</b>/5 · ${rs.length} rating${rs.length===1?'':'s'}` : 'No ratings yet'}
+          </div>
+        </div>
+      </div>
+
+      <div class="stats">
+        <div class="stat"><div class="k">Active</div><div class="v">${active.length}</div></div>
+        <div class="stat"><div class="k">Sold</div><div class="v">${sold.length}</div></div>
+        <div class="stat"><div class="k">Rating</div><div class="v">${rs.length ? avg.toFixed(1) : '—'}</div></div>
+        <div class="stat"><div class="k">Status</div><div class="v" style="color:${suspended?'var(--bad)':'var(--ok)'};font-size:16px">${suspended?'Suspended':'Active'}</div></div>
+      </div>
+
+      ${banner}
+
+      <div style="margin-top:18px;display:flex;gap:8px;flex-wrap:wrap">
+        <a class="btn primary" href="/sell.html">＋ Publish new part</a>
+        <a class="btn ghost" href="/">Browse marketplace</a>
+      </div>
+    </div>
+
+    <div class="panel tight">
+      <div class="panel-head"><h2>Active listings (${active.length})</h2></div>
+      ${active.length ? active.map(l => listingRow(l, true)).join('') : `<div class="empty"><div class="ico">📦</div>You have no active listings.</div>`}
+    </div>
+
+    ${sold.length ? `
+    <div class="panel tight">
+      <div class="panel-head"><h2>Sold / hidden (${sold.length})</h2></div>
+      ${sold.map(l => listingRow(l, false)).join('')}
+    </div>` : ''}
+
+    <div class="panel tight">
+      <div class="panel-head"><h2>Ratings received (${rs.length})</h2></div>
+      ${rs.length ? rs.map(r => `
+        <div class="row">
+          <div class="thumb" style="font-size:15px;font-weight:800;color:#f59e0b;background:#fff8e8">${r.stars}★</div>
+          <div class="info">
+            <b>${esc(r.comment || 'No comment')}</b>
+            <span>${new Date(r.created_at).toLocaleDateString()} · ${esc(r.buyer_phone || 'anonymous')}</span>
+          </div>
+        </div>
+      `).join('') : `<div class="empty"><div class="ico">⭐</div>No ratings yet.</div>`}
+    </div>
+  `;
+
+  // wire actions
+  $('#content').querySelectorAll('button[data-action]').forEach(b => {
+    b.addEventListener('click', () => handleAction(b.dataset.action, b.dataset.id));
+  });
+}
+
+function listingRow(l, isActive){
+  const thumb = l.photos && l.photos[0] ? `<img src="${l.photos[0]}">` : (CATEGORY_ICON[l.category] || '🔧');
+  const actions = isActive
+    ? `<button class="btn ok sm" data-action="sold" data-id="${l.id}">Mark sold</button>
+       <button class="btn danger sm" data-action="delete" data-id="${l.id}">Delete</button>`
+    : `<button class="btn ghost sm" data-action="active" data-id="${l.id}">Relist</button>
+       <button class="btn danger sm" data-action="delete" data-id="${l.id}">Delete</button>`;
+  return `
+    <div class="row">
+      <div class="thumb">${thumb}</div>
+      <div class="info">
+        <b>${esc(l.title)}</b>
+        <span>
+          <span class="badge ${l.condition}">${l.condition === 'new' ? 'New' : 'Used'}</span>
+          ${esc(l.brand)} ${esc(l.model)} · ${yearLabel(l)} · ${fmtPrice(l.price)}
+        </span>
+      </div>
+      <div class="actions">${actions}</div>
+    </div>`;
+}
+
+async function handleAction(action, id){
+  try {
+    if(action === 'delete'){
+      if(!confirm('Delete this listing permanently?')) return;
+      const { error } = await supabase.from('listings').delete().eq('id', id);
+      if(error){ toast(error.message, 'bad'); return; }
+      toast('Listing deleted', 'ok');
+      load();
+    } else if(action === 'sold'){
+      const { error } = await supabase.from('listings').update({ status: 'sold' }).eq('id', id);
+      if(error){ toast(error.message, 'bad'); return; }
+      toast('Marked as sold', 'ok');
+      load();
+    } else if(action === 'active'){
+      const { error } = await supabase.from('listings').update({ status: 'active' }).eq('id', id);
+      if(error){ toast(error.message, 'bad'); return; }
+      toast('Relisted', 'ok');
+      load();
+    }
+  } catch(err){
+    toast(err.message, 'bad');
+  }
+}
+
+load();
+</script>
+</body>
+</html>
